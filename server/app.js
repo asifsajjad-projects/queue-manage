@@ -11,6 +11,18 @@ const app = express();
 
 app.use(express.json());
 
+// Landing static assets (served from separate folder)
+app.use('/landing/static', express.static(path.resolve(process.cwd(), 'landing', 'static')));
+
+// Root landing page
+app.get('/', (req, res) => {
+  try {
+    res.sendFile(path.resolve(process.cwd(), 'landing', 'index.html'));
+  } catch (err) {
+    res.status(500).send('Failed to load landing page');
+  }
+});
+
 // Static builds
 app.use('/static/admin', express.static(path.resolve(process.cwd(), 'dist', 'admin')));
 app.use('/static/user', express.static(path.resolve(process.cwd(), 'dist', 'user')));
