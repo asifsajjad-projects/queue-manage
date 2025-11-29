@@ -2,19 +2,28 @@ import { useState, useEffect, useCallback } from 'react';
 
 const api = {
   stats: async () => {
-    const res = await fetch('/api/admin/stats');
+    const headers = {};
+    const token = typeof window !== 'undefined' ? localStorage.getItem('qm_token') : null;
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+    const res = await fetch('/api/admin/stats', { headers });
     if (!res.ok) throw new Error('Failed to fetch stats');
     return res.json();
   },
   getFields: async (org = 'default', dept = 'default') => {
-    const res = await fetch(`/api/admin/fields?org=${encodeURIComponent(org)}&dept=${encodeURIComponent(dept)}`);
+    const headers = {};
+    const token = typeof window !== 'undefined' ? localStorage.getItem('qm_token') : null;
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+    const res = await fetch(`/api/admin/fields?org=${encodeURIComponent(org)}&dept=${encodeURIComponent(dept)}`, { headers });
     if (!res.ok) throw new Error('Failed to fetch fields');
     return res.json();
   },
   saveFields: async (payload) => {
+    const headers = { 'Content-Type': 'application/json' };
+    const token = typeof window !== 'undefined' ? localStorage.getItem('qm_token') : null;
+    if (token) headers['Authorization'] = `Bearer ${token}`;
     const res = await fetch('/api/admin/fields', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers,
       body: JSON.stringify(payload)
     });
     if (!res.ok) throw new Error('Failed to save fields');

@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Auth - Queue Manage</title>
+    <link rel="stylesheet" href="/landing/static/style.css" />
+  </head>
+  <body>
+    <main class="container">
+      <h1 id="auth-title">Sign in / Sign up</h1>
+
+      <form id="auth-form">
+        <div>
+          <label for="username">Username</label>
+          <input id="username" name="username" required />
+        </div>
+        <div>
+          <label for="password">Password</label>
+          <input id="password" name="password" type="password" required />
+        </div>
+
+        <div style="margin-top:12px">
+          <button id="login">Login</button>
+          <button id="signup" type="button">Sign up</button>
+        </div>
+      </form>
+
+      <p id="msg" aria-live="polite"></p>
+    </main>
+
+    <script src="/landing/static/auth.js"></script>
+  </body>
+</html>

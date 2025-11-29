@@ -4,6 +4,7 @@ import fs from 'fs';
 import { createRequire } from 'module';
 import adminApi from './routes/adminApi.js';
 import userApi from './routes/userApi.js';
+import authApi from './routes/auth.js';
 
 const require = createRequire(import.meta.url);
 
@@ -20,6 +21,17 @@ app.get('/', (req, res) => {
     res.sendFile(path.resolve(process.cwd(), 'landing', 'index.html'));
   } catch (err) {
     res.status(500).send('Failed to load landing page');
+  }
+});
+
+// auth routes and page
+app.use('/auth', authApi);
+app.get('/auth', (req, res) => {
+  // serve the auth page from landing
+  try {
+    res.sendFile(path.resolve(process.cwd(), 'landing', 'auth.html'));
+  } catch (err) {
+    res.status(500).send('Failed to load auth page');
   }
 });
 
