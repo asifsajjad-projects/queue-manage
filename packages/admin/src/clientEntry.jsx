@@ -1,6 +1,7 @@
 import React from 'react';
 import { createRoot, hydrateRoot } from 'react-dom/client';
 import AdminApp from './App.jsx';
+import './styles.css';
 
 const container = document.getElementById('root');
 if (container) {

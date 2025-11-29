@@ -5,9 +5,9 @@
   "description": "Boilerplate for React + Express SSR with separate admin and user dashboards",
   "main": "server/index.js",
   "scripts": {
-  "build:admin": "webpack --config webpack.admin.config.cjs",
-  "build:user": "webpack --config webpack.user.config.cjs",
-  "build": "npm run build:admin && npm run build:user && node scripts/copyPublic.js",
+    "build:admin": "webpack --config webpack.admin.config.cjs",
+    "build:user": "webpack --config webpack.user.config.cjs",
+    "build": "npm run build:admin && npm run build:user && node scripts/copyPublic.js",
     "start": "node server/index.js",
     "dev": "nodemon --watch server --exec babel-node server/index.js"
   },
@@ -31,6 +31,12 @@
     "style-loader": "^3.3.3",
     "webpack": "^5.88.2",
     "webpack-cli": "^5.1.4",
-    "webpack-node-externals": "^3.0.0"
+    "webpack-node-externals": "^3.0.0",
+    "vitest": "^1.0.0",
+    "supertest": "^6.3.3",
+    "@testing-library/react": "^14.0.0",
+    "@testing-library/jest-dom": "^6.0.0",
+    "jsdom": "^22.1.0"
   }
 }
+
