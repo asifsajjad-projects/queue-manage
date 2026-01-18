@@ -1,47 +1,74 @@
 import express from 'express';
+import passport from 'passport';
+import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
 import jwt from 'jsonwebtoken';
+import cookieParser from 'cookie-parser';
+import Role from '../models/Role.js';
 
 const router = express.Router();
 
 const SECRET = process.env.JWT_SECRET || 'dev_secret';
 
-function decideScope(username) {
-  const s = username.toLowerCase();
-  if (s.includes('admin')) return ['admin'];
-  if (s.includes('manager')) return ['manager'];
-  if (s.includes('super')) return ['super-user'];
-  return ['user'];
-}
-
-// simple login: accepts { username, password }
-router.post('/login', (req, res) => {
-  const { username } = req.body || {};
-  if (!username) return res.status(400).json({ error: 'username required' });
-
-  const scopes = decideScope(username);
-  const token = jwt.sign({ sub: username, scope: scopes }, SECRET, { expiresIn: '2h' });
-  res.json({ token, scopes });
-});
-
-// simple signup (behaves same as login for demo)
-router.post('/signup', (req, res) => {
-  const { username } = req.body || {};
-  if (!username) return res.status(400).json({ error: 'username required' });
-  const scopes = ['user'];
-  const token = jwt.sign({ sub: username, scope: scopes }, SECRET, { expiresIn: '2h' });
-  res.json({ token, scopes });
-});
-
-// validate token
-router.get('/me', (req, res) => {
-  const auth = req.headers.authorization || '';
-  const m = auth.match(/^Bearer\s+(.+)$/i);
-  if (!m) return res.status(401).json({ error: 'missing token' });
+// Passport Google Strategy
+passport.use(new GoogleStrategy({
+  clientID: process.env.GOOGLE_CLIENT_ID,
+  clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+  callbackURL: '/auth/google/callback'
+}, async (accessToken, refreshToken, profile, done) => {
   try {
-    const payload = jwt.verify(m[1], SECRET);
+    const email = profile.emails[0].value;
+    let roleDoc = await Role.findOne({ email });
+    let role = 'user'; // default
+    if (roleDoc) {
+      role = roleDoc.role;
+    } else {
+      // Optionally, create a new role entry with default 'user'
+      await Role.create({ email, role: 'user' });
+    }
+    const user = { email, role };
+    return done(null, user);
+  } catch (err) {
+    return done(err);
+  }
+}));
+
+passport.serializeUser((user, done) => {
+  done(null, user);
+});
+
+passport.deserializeUser((user, done) => {
+  done(null, user);
+});
+
+// Middleware
+router.use(cookieParser());
+router.use(passport.initialize());
+router.use(passport.session());
+
+// Google OAuth routes
+router.get('/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
+
+router.get('/google/callback', passport.authenticate('google', { failureRedirect: '/auth' }), (req, res) => {
+  const token = jwt.sign({ sub: req.user.email, role: req.user.role }, SECRET, { expiresIn: '2h' });
+  res.cookie('jwt', token, { httpOnly: true, secure: false }); // Set secure: true in production
+  res.redirect('/'); // Redirect to home or dashboard
+});
+
+// Logout
+router.post('/logout', (req, res) => {
+  res.clearCookie('jwt');
+  res.json({ message: 'Logged out' });
+});
+
+// Validate token (from cookie)
+router.get('/me', (req, res) => {
+  const token = req.cookies.jwt;
+  if (!token) return res.status(401).json({ error: 'No token' });
+  try {
+    const payload = jwt.verify(token, SECRET);
     res.json({ user: payload });
   } catch (err) {
-    res.status(401).json({ error: 'invalid token' });
+    res.status(401).json({ error: 'Invalid token' });
   }
 });
 

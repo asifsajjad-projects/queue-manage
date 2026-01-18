@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import path from 'path';
 import express from 'express';
 import fs from 'fs';
@@ -5,13 +6,14 @@ import { createRequire } from 'module';
 import adminApi from './routes/adminApi.js';
 import userApi from './routes/userApi.js';
 import authApi from './routes/auth.js';
-import 'dotenv/config';
+import cookieParser from 'cookie-parser';
 
 const require = createRequire(import.meta.url);
 
 const app = express();
 
 app.use(express.json());
+app.use(cookieParser());
 
 // Landing static assets (served from separate folder)
 app.use('/website/about-us', express.static(path.resolve(process.cwd(), 'landing', 'static')));
@@ -27,16 +29,18 @@ app.get('/', (req, res) => {
 
 // auth routes and page
 app.use('/auth', authApi);
-app.get('/auth', (req, res) => {
-  // serve the auth page from landing
+app.get('/authenticate', (req, res) => {
+  // serve the auth React app
   try {
-    res.sendFile(path.resolve(process.cwd(), 'landing', 'auth.html'));
+    const html = renderHTML(path.resolve(process.cwd(), 'packages', 'auth', 'public', 'index.html'), 'auth-app', '');
+    res.send(html);
   } catch (err) {
     res.status(500).send('Failed to load auth page');
   }
 });
 
 // Static builds
+app.use('/static/auth', express.static(path.resolve(process.cwd(), 'dist', 'auth')));
 app.use('/static/admin', express.static(path.resolve(process.cwd(), 'dist', 'admin')));
 app.use('/static/user', express.static(path.resolve(process.cwd(), 'dist', 'user')));
 
