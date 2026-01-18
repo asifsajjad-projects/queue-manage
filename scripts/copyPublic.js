@@ -11,4 +11,4 @@ function copyPublic(appName) {
   console.log(`Copied ${src} -> ${dest}`);
 }
 
-['admin', 'user'].forEach(copyPublic);
+['admin', 'user', 'auth'].forEach(copyPublic);

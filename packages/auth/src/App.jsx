@@ -1,10 +1,10 @@
 import React from 'react';
+import Auth from './components/Auth.jsx';
 
 function App() {
   return (
     <div>
-      <h1>Auth App</h1>
-      {/* Login/Signup components will go here */}
+      <Auth />
     </div>
   );
 }

@@ -3,6 +3,7 @@ import path from 'path';
 import express from 'express';
 import fs from 'fs';
 import { createRequire } from 'module';
+import session from 'express-session';
 import adminApi from './routes/adminApi.js';
 import userApi from './routes/userApi.js';
 import authApi from './routes/auth.js';
@@ -13,6 +14,11 @@ const require = createRequire(import.meta.url);
 const app = express();
 
 app.use(express.json());
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'dev_session_secret',
+  resave: false,
+  saveUninitialized: false
+}));
 app.use(cookieParser());
 
 // Landing static assets (served from separate folder)
@@ -29,7 +35,7 @@ app.get('/', (req, res) => {
 
 // auth routes and page
 app.use('/auth', authApi);
-app.get('/authenticate', (req, res) => {
+app.get('/auth', (req, res) => {
   // serve the auth React app
   try {
     const html = renderHTML(path.resolve(process.cwd(), 'packages', 'auth', 'public', 'index.html'), 'auth-app', '');
