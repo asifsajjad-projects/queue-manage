@@ -5,6 +5,7 @@ import { createRequire } from 'module';
 import adminApi from './routes/adminApi.js';
 import userApi from './routes/userApi.js';
 import authApi from './routes/auth.js';
+import 'dotenv/config';
 
 const require = createRequire(import.meta.url);
 
@@ -13,7 +14,7 @@ const app = express();
 app.use(express.json());
 
 // Landing static assets (served from separate folder)
-app.use('/landing/static', express.static(path.resolve(process.cwd(), 'landing', 'static')));
+app.use('/website/about-us', express.static(path.resolve(process.cwd(), 'landing', 'static')));
 
 // Root landing page
 app.get('/', (req, res) => {
